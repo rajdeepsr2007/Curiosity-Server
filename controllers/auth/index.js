@@ -22,7 +22,8 @@ module.exports.signupUser = async ( req , res ) => {
                 user = await User.create({
                     email ,
                     username ,
-                    password 
+                    password ,
+                    firstLogin : true
                 });
                 return res.status(200).json({
                     message : 'Account was created',
@@ -50,7 +51,8 @@ module.exports.login = async (req , res) => {
                 token : token ,
                 email : user.email ,
                 username : user.username,
-                success : true
+                success : true,
+                firstLogin : user.firstLogin
             })
         }else{
             user = await User.findOne({ username : email });
@@ -60,7 +62,8 @@ module.exports.login = async (req , res) => {
                     token : token ,
                     email : user.email ,
                     username : user.username,
-                    success : true
+                    success : true,
+                    firstLogin : user.firstLogin
                 })
             }
         }
