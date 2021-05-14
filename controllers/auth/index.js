@@ -6,22 +6,27 @@ module.exports.signupUser = async ( req , res ) => {
         let user = await User.findOne( { email : email } );
         //console.log(user);
         if( user ){
-            return res.status(400).json({
-                message : `Email <strong>${email}</strong> already exists`
+            return res.status(200).json({
+                message : `Email ${email} already exists`,
+                success : false
             })
         }else{
             user = await User.findOneAndRemove( { username : username } );
             if( user ){
-                return res.status(400).json({
-                    message : `Username <strong>${username}</strong> already exists`
+                return res.status(200).json({
+                    message : `Username ${username} already exists`,
+                    success : false
                 })
             }else{
                 user = await User.create({
-                    email , username , password
+                    email ,
+                    username ,
+                    password 
                 });
                 return res.status(200).json({
                     message : 'Account was created',
-                    user : { email : email , username : username }
+                    user : { email : email , username : username },
+                    success : true
                 })
             }
         }
