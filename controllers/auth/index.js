@@ -73,3 +73,9 @@ module.exports.login = async (req , res) => {
         })
     }  
 }
+
+module.exports.jwtAuth = (req,res) => {
+    return res.status(200).json({
+        message : req.user
+    })
+}

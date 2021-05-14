@@ -4,9 +4,11 @@ const port = 8000;
 const cors = require('cors');
 
 const db=require('./config/mongoose');
+const passport = require('passport');
 
 app.use(cors());
 app.use(express.json());
+app.use(passport.initialize());
 app.use('/',require('./routes'));
 
 app.listen( port , ( err ) => {
