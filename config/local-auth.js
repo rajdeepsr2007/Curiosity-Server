@@ -10,10 +10,16 @@ module.exports.localAuth = async (req , res , next) => {
         if( user ){
             if( user.password === password ){
                 next();
+            }else{
+                return res.status(200).json({
+                    message : 'Invalid username or password',
+                    success : false
+                }) 
             }
         }else{
             return res.status(200).json({
-                message : 'Invalid username or password'
+                message : 'Invalid username or password',
+                success : false
             })
         }
     }catch(error){

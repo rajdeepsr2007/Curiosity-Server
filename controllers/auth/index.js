@@ -37,3 +37,9 @@ module.exports.signupUser = async ( req , res ) => {
         })
     }
 }
+
+module.exports.login = (req , res) => {
+    return res.json(200).json({
+        message : "Logged in"
+    })
+}
