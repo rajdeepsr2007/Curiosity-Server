@@ -46,24 +46,34 @@ module.exports.login = async (req , res) => {
         const { email } = req.body;
         let user = await User.findOne({ email : email });
         if( user ){
+            const firstLogin = user.firstLogin;
+            if( firstLogin ){
+                user.firstLogin = false;
+                await user.save();
+            } 
             const token = await jwt.sign(user.toJSON() , 'curiosity' , { expiresIn : 1000000 } )
             return res.status(200).json({
                 token : token ,
                 email : user.email ,
                 username : user.username,
                 success : true,
-                firstLogin : user.firstLogin
+                firstLogin : firstLogin
             })
         }else{
             user = await User.findOne({ username : email });
             const token = await jwt.sign(user.toJSON() , 'curiosity' , { expiresIn : 1000000 } )
             if( user ){
+                const firstLogin = user.firstLogin;
+                if( firstLogin ){
+                    user.firstLogin = false;
+                    await user.save();
+                } 
                 return res.status(200).json({
                     token : token ,
                     email : user.email ,
                     username : user.username,
                     success : true,
-                    firstLogin : user.firstLogin
+                    firstLogin : firstLogin
                 })
             }
         }
@@ -78,4 +88,30 @@ module.exports.jwtAuth = (req,res) => {
     return res.status(200).json({
         message : req.user
     })
+}
+
+module.exports.getAllInterests = async (req , res) => {
+    try{
+        const topics = [
+            'Economics',
+            'Cars and Automobiles',
+            'Medicine and Healthcare',
+            'Photography',
+            'Science',
+            'Technology',
+            'Video Games',
+            'Entrepreneurship',
+            'Writing',
+            'Music',
+            'Books',
+            'Food and Beverages'
+        ];
+        return res.status(200).json({
+            topics : topics
+        })
+    }catch(error){
+        return res.status(500).json({
+            message : 'Something went wrong'
+        })
+    }
 }
