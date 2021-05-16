@@ -1,5 +1,6 @@
 const User = require('../../models/user/');
 const jwt = require('jsonwebtoken');
+const allTopics = require('../../config/topics');
 
 module.exports.signupUser = async ( req , res ) => {
     try{
@@ -90,22 +91,9 @@ module.exports.jwtAuth = (req,res) => {
     })
 }
 
-module.exports.getAllInterests = async (req , res) => {
+module.exports.getAllTopics = async (req , res) => {
     try{
-        const topics = [
-            'Economics',
-            'Cars and Automobiles',
-            'Medicine and Healthcare',
-            'Photography',
-            'Science',
-            'Technology',
-            'Video Games',
-            'Entrepreneurship',
-            'Writing',
-            'Music',
-            'Books',
-            'Food and Beverages'
-        ];
+        const topics = allTopics;
         return res.status(200).json({
             topics : topics
         })
