@@ -8,6 +8,7 @@ const passport = require('../../../config/passport-jwt');
 
 router.post( '/signup' , authController.signupUser );
 router.post( '/login' , localAuth.localAuth , authController.login )
-router.post( '/jwt' , passport.authenticate('jwt') , authController.jwtAuth );
+//router.post( '/jwt' , passport.authenticate('jwt') , authController.jwtAuth );
+router.get('/auto-login',passport.authenticate('jwt'),authController.autoLogin)
 
 module.exports = router;

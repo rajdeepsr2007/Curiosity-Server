@@ -78,15 +78,35 @@ module.exports.login = async (req , res) => {
             }
         }
     }catch(error){
-        return res.status(500).json({
+        return  res.status(500).json({
             message : 'Something went wrong'
         })
     }  
 }
 
-module.exports.jwtAuth = (req,res) => {
-    return res.status(200).json({
-        message : req.user
-    })
+module.exports.autoLogin = async (req,res) => {
+    try{
+        const user = await User.findById(req.user._id);
+        if( user ){
+            const token = await jwt.sign(user.toJSON() , 'curiosity' , {expiresIn : 1000000})
+            return res.status(200).json({
+                email : user.email ,
+                username : user.username ,
+                token : token,
+                success : true
+            })
+        }
+    }catch(error){
+        console.log(error);
+        return  res.status(500).json({
+            message : 'Something went wrong'
+        })
+    }
 }
+
+// module.exports.jwtAuth = (req,res) => {
+//     return res.status(200).json({
+//         message : req.user
+//     })
+// }
 
