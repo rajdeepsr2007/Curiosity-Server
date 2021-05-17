@@ -22,7 +22,11 @@ const userSchema = new mongoose.Schema({
             type : mongoose.Schema.Types.ObjectId,
             ref : 'Topic'
         }
-    ]
+    ],
+    picture : {
+        type : String,
+        required : true
+    }
 },{
     timestamps : true
 })

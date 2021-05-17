@@ -13,6 +13,7 @@ module.exports.signupUser = async ( req , res ) => {
             })
         }else{
             user = await User.findOneAndRemove( { username : username } );
+            const image = '/images/avatars/'+ Math.floor((Math.random()*9 + 1 ))  +'.jpg'
             if( user ){
                 return res.status(200).json({
                     message : `Username ${username} already exists`,
@@ -23,7 +24,8 @@ module.exports.signupUser = async ( req , res ) => {
                     email ,
                     username ,
                     password ,
-                    firstLogin : true
+                    firstLogin : true,
+                    picture : image
                 });
                 return res.status(200).json({
                     message : 'Account was created',

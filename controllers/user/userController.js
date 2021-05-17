@@ -53,3 +53,18 @@ module.exports.getAllTopics = async (req , res) => {
         })
     }
 }
+
+module.exports.getUserPicture = async (req,res) => {
+    try{
+        const user = await User.findById(req.user._id);
+        return res.status(200).json({
+            message : "Changes Saved",
+            success : true ,
+            src : user.picture
+        })
+    }catch(error){
+        return res.status(500).json({
+            message : 'Something went wrong'
+        })
+    }
+}

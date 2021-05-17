@@ -6,5 +6,6 @@ const userController = require('../../../controllers/user/userController');
 
 router.get('/topics' , passport.authenticate('jwt') , userController.getAllTopics );
 router.post('/edit-topics' , passport.authenticate('jwt') , userController.editTopics);
+router.get('/picture', passport.authenticate('jwt') , userController.getUserPicture )
 
 module.exports = router;
