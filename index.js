@@ -9,6 +9,7 @@ const passport = require('passport');
 app.use(cors());
 app.use(express.json());
 app.use(passport.initialize());
+app.use(express.static('./assets/'))
 app.use('/',require('./routes'));
 
 app.listen( port , ( err ) => {
