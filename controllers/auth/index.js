@@ -1,6 +1,5 @@
 const User = require('../../models/user/');
 const jwt = require('jsonwebtoken');
-const allTopics = require('../../config/topics');
 
 module.exports.signupUser = async ( req , res ) => {
     try{
@@ -91,15 +90,3 @@ module.exports.jwtAuth = (req,res) => {
     })
 }
 
-module.exports.getAllTopics = async (req , res) => {
-    try{
-        const topics = allTopics;
-        return res.status(200).json({
-            topics : topics
-        })
-    }catch(error){
-        return res.status(500).json({
-            message : 'Something went wrong'
-        })
-    }
-}

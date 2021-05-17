@@ -16,7 +16,13 @@ const userSchema = new mongoose.Schema({
     firstLogin : {
         type : Boolean ,
         required : true
-    }
+    },
+    topics : [
+        {
+            type : mongoose.Schema.Types.ObjectId,
+            ref : 'Topic'
+        }
+    ]
 },{
     timestamps : true
 })

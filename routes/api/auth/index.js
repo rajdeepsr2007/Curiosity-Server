@@ -9,6 +9,5 @@ const passport = require('../../../config/passport-jwt');
 router.post( '/signup' , authController.signupUser );
 router.post( '/login' , localAuth.localAuth , authController.login )
 router.post( '/jwt' , passport.authenticate('jwt') , authController.jwtAuth );
-router.get( '/topics'  , authController.getAllTopics);
 
 module.exports = router;
