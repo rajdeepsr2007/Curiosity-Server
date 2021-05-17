@@ -10,6 +10,7 @@ app.use(cors());
 app.use(express.json());
 app.use(passport.initialize());
 app.use(express.static('./assets/'))
+app.use('/uploads' , express.static('./uploads'))
 app.use('/',require('./routes'));
 
 app.listen( port , ( err ) => {
