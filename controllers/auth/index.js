@@ -53,7 +53,7 @@ module.exports.login = async (req , res) => {
                 user.firstLogin = false;
                 await user.save();
             } 
-            const token = await jwt.sign(user.toJSON() , 'curiosity' , { expiresIn : 1000000 } )
+            const token = await jwt.sign(user.toJSON() , 'curiosity' , { expiresIn : 100000000 } )
             return res.status(200).json({
                 token : token ,
                 email : user.email ,
@@ -63,7 +63,7 @@ module.exports.login = async (req , res) => {
             })
         }else{
             user = await User.findOne({ username : email });
-            const token = await jwt.sign(user.toJSON() , 'curiosity' , { expiresIn : 1000000 } )
+            const token = await jwt.sign(user.toJSON() , 'curiosity' , { expiresIn : 100000000 } )
             if( user ){
                 const firstLogin = user.firstLogin;
                 if( firstLogin ){
@@ -90,7 +90,7 @@ module.exports.autoLogin = async (req,res) => {
     try{
         const user = await User.findById(req.user._id);
         if( user ){
-            const token = await jwt.sign(user.toJSON() , 'curiosity' , {expiresIn : 1000000})
+            const token = await jwt.sign(user.toJSON() , 'curiosity' , {expiresIn : 100000000})
             return res.status(200).json({
                 email : user.email ,
                 username : user.username ,
