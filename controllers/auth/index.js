@@ -12,7 +12,7 @@ module.exports.signupUser = async ( req , res ) => {
                 success : false
             })
         }else{
-            user = await User.findOneAndRemove( { username : username } );
+            user = await User.findOne( { username : username } );
             const image = '/images/avatars/'+ Math.floor((Math.random()*9 + 1 ))  +'.jpg'
             if( user ){
                 return res.status(200).json({
