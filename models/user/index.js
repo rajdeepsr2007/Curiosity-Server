@@ -26,7 +26,12 @@ const userSchema = new mongoose.Schema({
     picture : {
         type : String,
         required : true
-    }
+    },
+    spaces : [
+        {
+            type : mongoose.Schema.Types.ObjectId
+        }
+    ]
 },{
     timestamps : true
 })
