@@ -5,9 +5,11 @@ const cors = require('cors');
 
 const db=require('./config/mongoose');
 const passport = require('passport');
+const { use } = require('./routes');
 
 app.use(cors());
 app.use(express.json());
+app.use(express.urlencoded({ extended : true }));
 app.use(passport.initialize());
 app.use(express.static('./assets/'))
 app.use('/uploads' , express.static('./uploads'))
