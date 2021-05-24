@@ -18,7 +18,7 @@ module.exports.addSpace = async (req,res) => {
                     space = await Space.create({
                         title : title,
                         topic : topic ,
-                        background : path.join('/uploads','backgrounds/') + req.file.filename
+                        background : path.join('/uploads','backgrounds/') + req.file.filename,
                     })
                     return res.status(200).json({
                         message : `Space ${title} created`,
@@ -67,6 +67,7 @@ module.exports.followSpace = async (req,res) => {
         const {spaceId} = req.body;
         let isFollowing = false;
         const user = await User.findById(req.user._id);
+        const space = await Space.findById(spaceId);
         for( let space of user.spaces ){
             if( JSON.stringify(space) === JSON.stringify(spaceId) ){
                 isFollowing = true;
@@ -76,6 +77,8 @@ module.exports.followSpace = async (req,res) => {
         if( isFollowing ){
             await user.spaces.pull(spaceId);
             await user.save();
+            await space.followers.pull(user._id);
+            await space.save();
             return res.status(200).json({
                 message : "Space Unfollowed",
                 success : true,
@@ -84,6 +87,9 @@ module.exports.followSpace = async (req,res) => {
         }else{
             await user.spaces.push(spaceId);
             await user.save();
+            await space.followers.push(user._id);
+            await space.save();
+            await space.save();
             return res.status(200).json({
                 message : "Space Followed",
                 success : true,
@@ -92,6 +98,20 @@ module.exports.followSpace = async (req,res) => {
         }
     }catch(error){
         console.log(error);
+        return res.status(500).json({
+            message : "Something went wrong"
+        })
+    }
+}
+
+module.exports.getSpacesByTopic = async (req,res) => {
+    try{
+        const spaces = await Space.find({ topic : req.body.topic });
+        return res.status(200).json({
+            message : `Spaces under topic ${req.body.topic}`,
+            spaces : spaces
+        })
+    }catch(error){
         return res.status(500).json({
             message : "Something went wrong"
         })
