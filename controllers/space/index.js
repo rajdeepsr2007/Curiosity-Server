@@ -20,6 +20,7 @@ module.exports.addSpace = async (req,res) => {
                         topic : topic ,
                         background : path.join('/uploads','backgrounds/') + req.file.filename,
                     })
+                   
                     return res.status(200).json({
                         message : `Space ${title} created`,
                         success : true
