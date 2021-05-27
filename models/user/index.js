@@ -29,7 +29,32 @@ const userSchema = new mongoose.Schema({
     },
     spaces : [
         {
-            type : mongoose.Schema.Types.ObjectId
+            type : mongoose.Schema.Types.ObjectId,
+            ref : 'Space'
+        }
+    ],
+    questions : [
+        {
+            type : mongoose.Schema.Types.ObjectId ,
+            ref : 'Question'
+        }
+    ],
+    answers : [
+        {
+            type : mongoose.Schema.Types.ObjectId,
+            ref : 'Answer'
+        }
+    ],
+    followers : [
+        {
+            type : mongoose.Schema.Types.ObjectId ,
+            ref : 'User'
+        }
+    ],
+    following : [
+        {
+            type : mongoose.Schema.Types.ObjectId ,
+            ref : 'User'
         }
     ]
 },{
