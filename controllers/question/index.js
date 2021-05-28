@@ -48,7 +48,11 @@ const filterQuestions = async (filter) => {
     if( filter.topics ){
         if( filter.topics.length > 0 ){
             for( let topic of filter.topics ){
-                const topicObject = await Topic.findById(topic).populate({ path : 'questions' , populate : { path : 'user' } });
+                const topicObject = await Topic.findById(topic)
+                                                .populate({ path : 'questions' , populate : { path : 'user' } })
+                                                .populate({ path : 'questions' , populate : { path : 'topic'} })
+                                                .populate({ path : 'questions' , populate : { path : 'space'} })
+                                                ;
                 const questions = topicObject.questions;
                 for( let question of questions ){
                     questionObjects.push({ ...question.toJSON() , user : {...question.toJSON().user , password : null } })
@@ -59,7 +63,11 @@ const filterQuestions = async (filter) => {
     if( filter.spaces ){
         if( filter.spaces.length > 0 ){
             for( let space of filter.spaces ){
-                const spaceObject = await Space.findById(space).populate({ path : 'questions' , populate : { path : 'user' } });
+                const spaceObject = await Space.findById(space)
+                                                .populate({ path : 'questions' , populate : { path : 'user' } })
+                                                .populate({ path : 'questions' , populate : { path : 'topic'} })
+                                                .populate({ path : 'questions' , populate : { path : 'space'} })
+                                                ;
                 const questions = spaceObject.questions;
                 for( let question of questions ){
                     questionObjects.push({ ...question.toJSON() , user : {...question.toJSON().user , password : null } })
@@ -94,14 +102,20 @@ module.exports.getQuestions = async (req,res) => {
             })
         }else{
             for( let space of user.spaces ){
-                const spaceObject = await Space.findById(space).populate({ path : 'questions' , populate : { path : 'user' } });
+                const spaceObject = await Space.findById(space)
+                                                .populate({ path : 'questions' , populate : { path : 'user' } })
+                                                .populate({ path : 'questions' , populate : { path : 'topic'} })
+                                                .populate({ path : 'questions' , populate : { path : 'space'} });
                 const questions = spaceObject.questions;
                 for( let question of questions ){
                     questionObjects.push({ ...question.toJSON() , user : {...question.toJSON().user , password : null } })
                 }
             }
             for( let topic of user.topics ){
-                const topicObject = await Topic.findById(topic).populate({ path : 'questions' , populate : { path : 'user' } });
+                const topicObject = await Topic.findById(topic)
+                                                .populate({ path : 'questions' , populate : { path : 'user' } })
+                                                .populate({ path : 'questions' , populate : { path : 'topic'} })
+                                                .populate({ path : 'questions' , populate : { path : 'space'} });
                 const questions = topicObject.questions;
                 for( let question of questions ){
                     questionObjects.push({ ...question.toJSON() , user : {...question.toJSON().user , password : null } })
