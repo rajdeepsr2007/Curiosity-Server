@@ -8,5 +8,6 @@ router.get('/topics' , passport.authenticate('jwt') , userController.getAllTopic
 router.post('/edit-topics' , passport.authenticate('jwt') , userController.editTopics);
 router.get('/picture', passport.authenticate('jwt') , userController.getUserPicture );
 router.post('/edit-picture' , passport.authenticate('jwt') , userController.editPicture  );
+router.get('/get-user-topics-spaces' , passport.authenticate('jwt') , userController.getTopicsSpaces);
 
 module.exports = router;

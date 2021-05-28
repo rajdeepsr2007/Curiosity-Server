@@ -46,7 +46,7 @@ module.exports.login = async (req , res) => {
 
     try{
         const { email } = req.body;
-        let user = await User.findOne({ email : email });
+        let user = await User.findOne({ email : email }).populate('topics').populate('spaces');
         if( user ){
             const firstLogin = user.firstLogin;
             if( firstLogin ){
@@ -59,7 +59,8 @@ module.exports.login = async (req , res) => {
                 email : user.email ,
                 username : user.username,
                 success : true,
-                firstLogin : firstLogin
+                firstLogin : firstLogin,
+                user : {...user.toJSON() , password : null}
             })
         }else{
             user = await User.findOne({ username : email });
@@ -88,14 +89,15 @@ module.exports.login = async (req , res) => {
 
 module.exports.autoLogin = async (req,res) => {
     try{
-        const user = await User.findById(req.user._id);
+        const user = await User.findById(req.user._id).populate('topics').populate('spaces');
         if( user ){
             const token = await jwt.sign(user.toJSON() , 'curiosity' , {expiresIn : 100000000})
             return res.status(200).json({
                 email : user.email ,
                 username : user.username ,
                 token : token,
-                success : true
+                success : true,
+                user : {...user.toJSON() , password : null}
             })
         }
     }catch(error){

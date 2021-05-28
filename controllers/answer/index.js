@@ -34,3 +34,28 @@ module.exports.addAnswer = async (req,res) => {
         })
     }
 }
+
+module.exports.getAnswers = async (req,res) => {
+    try{
+        const {questionId} = req.body;
+        const question = await Question.findById(questionId)
+                        .populate({ path : 'answers' , populate : { path : 'user' } })
+        const answers = question.answers;
+        for( const answer of answers ){
+            answer.description = fs.readFileSync(
+                        path.join(__dirname , '..' , '..' , 'data' , 'answers' , answer.description )
+                    )
+        }
+                
+        return res.status(200).json({
+            message : "Answers Loaded",
+            answers : answers
+        })
+
+    }catch(error){
+        console.log(error);
+        return res.status(500).json({
+            message : "Something went wrong"
+        })
+    }
+}

@@ -95,3 +95,19 @@ module.exports.editPicture = async (req,res) => {
         })
     }
 }
+
+module.exports.getTopicsSpaces = async (req,res) => {
+    try{
+        const user = await User.findById(req.user._id).populate('topics').populate('spaces');
+        return res.status(200).json({
+            message : "User Topics Spaces",
+            topics : user.topics ,
+            spaces : user.spaces ,
+            success : true
+        })
+    }catch(error){
+        return res.status(500).json({
+            message : "Something went wrong"
+        })
+    }
+}
