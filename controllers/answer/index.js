@@ -2,6 +2,7 @@ const Answer = require('../../models/answer/');
 const Question = require('../../models/question/');
 const fs = require('fs');
 const path = require('path');
+const Vote = require('../../models/votes/votes');
 
 module.exports.addAnswer = async (req,res) => {
     try{
@@ -45,11 +46,26 @@ module.exports.getAnswers = async (req,res) => {
             answer.description = fs.readFileSync(
                         path.join(__dirname , '..' , '..' , 'data' , 'answers' , answer.description )
                     )
+        } 
+
+        const answerObjects = [];
+
+        for( const answer of answers ){
+            const vote = await Vote.findOne({ user : req.user._id , answer : answer._id  });
+            const answerObject = answer.toJSON();
+            if( vote ){
+                if( vote.type === 'upvote' ){
+                    answerObject['upvoted']  = true 
+                }else{
+                    answerObject['downvoted'] = true
+                }
+            }
+            answerObjects.push(answerObject);
         }
                 
         return res.status(200).json({
             message : "Answers Loaded",
-            answers : answers
+            answers : answerObjects
         })
 
     }catch(error){
@@ -59,3 +75,73 @@ module.exports.getAnswers = async (req,res) => {
         })
     }
 }
+
+module.exports.voteAnswer = async (req,res) => {
+    try{
+        const {answerId , type } = req.body;
+        const answer = await Answer.findById(answerId);
+        if( answer ){
+            const vote = await Vote.findOne({ user : req.user._id , answer : answer });
+            if( vote ){
+                const voteType = vote.type;
+                await vote.remove();
+                if( voteType === type ){     
+                    if( type === 'upvote' ){
+                        answer.upvotes = parseInt( answer.upvotes ) - 1;
+                    }else{
+                        answer.downvotes = parseInt( answer.downvotes ) - 1;
+                    }
+                    await answer.save();
+                    return res.status(200).json({
+                        message : "Vote Removed",
+                        success : true
+                    })
+                }else{
+                    const vote = await Vote.create({
+                        user : req.user._id ,
+                        answer : answer ,
+                        type
+                    })
+                    if( type === 'upvote' ){
+                        answer.upvotes = parseInt( answer.upvotes ) + 1;
+                        answer.downvotes = parseInt( answer.downvotes ) - 1;
+                    }else{
+                        answer.upvotes = parseInt( answer.upvotes ) - 1;
+                        answer.downvotes = parseInt( answer.downvotes ) + 1;
+                    }
+                    await answer.save();
+                    return res.status(200).json({
+                        message : "Vote Inverted",
+                        success : true
+                    })
+                }
+            }else{
+                const vote = await Vote.create({
+                    user : req.user._id ,
+                    answer : answer ,
+                    type
+                })
+                if( type === 'upvote' ){
+                    answer.upvotes = parseInt( answer.upvotes ) + 1;
+                }else{
+                    answer.downvotes = parseInt( answer.downvotes ) + 1;
+                }
+                await answer.save();
+                return res.status(200).json({
+                    message : "Vote Created",
+                    success : true
+                })
+            }
+        }else{
+            return res.status(200).json({
+                message : "Answer doesn't exist",
+                success : true
+            })
+        }
+        
+    }catch(error){
+        return res.status(500).json({
+            message : "Something went wrong"
+        }) 
+    }
+} 
