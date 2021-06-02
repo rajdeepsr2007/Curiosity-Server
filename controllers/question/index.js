@@ -43,19 +43,16 @@ module.exports.addQuestion = async (req,res) => {
     }
 }
 
-const filterQuestions = async (filter) => {
+
+
+const getFilteredQuestions = async (filter) => {
     const questionObjects = [];
     if( filter.topics ){
         if( filter.topics.length > 0 ){
             for( let topic of filter.topics ){
-                const topicObject = await Topic.findById(topic)
-                                                .populate({ path : 'questions' , populate : { path : 'user' } })
-                                                .populate({ path : 'questions' , populate : { path : 'topic'} })
-                                                .populate({ path : 'questions' , populate : { path : 'space'} })
-                                                ;
-                const questions = topicObject.questions;
+                const questions = await getQuestionsByTopic(topic);
                 for( let question of questions ){
-                    questionObjects.push({ ...question.toJSON() , user : {...question.toJSON().user , password : null } })
+                    questionObjects.push(question);
                 }
             }
         }
@@ -63,29 +60,71 @@ const filterQuestions = async (filter) => {
     if( filter.spaces ){
         if( filter.spaces.length > 0 ){
             for( let space of filter.spaces ){
-                const spaceObject = await Space.findById(space)
-                                                .populate({ path : 'questions' , populate : { path : 'user' } })
-                                                .populate({ path : 'questions' , populate : { path : 'topic'} })
-                                                .populate({ path : 'questions' , populate : { path : 'space'} })
-                                                ;
-                const questions = spaceObject.questions;
+                const questions = await getQuestionsBySpace(space);
                 for( let question of questions ){
-                    questionObjects.push({ ...question.toJSON() , user : {...question.toJSON().user , password : null } })
+                    questionObjects.push(question);
                 }
             }
         }
     }
-
-    for( let question of questionObjects ){
-        question.description = JSON.stringify(
-            JSON.parse(
-                fs.readFileSync(path.join(__dirname , '..' ,'..' ,'data' , 'questions' , question.description))
-        ))
-    }
-
     return questionObjects;
-
 }
+
+
+
+const getQuestionsBySpace = async (space) => {
+    let questionObjects = []
+    const spaceObject = await Space.findById(space)
+                                        .populate({ path : 'questions' , populate : { path : 'user' } })
+                                        .populate({ path : 'questions' , populate : { path : 'topic'} })
+                                        .populate({ path : 'questions' , populate : { path : 'space'} });
+    const questions = spaceObject.questions;
+    for( let question of questions ){
+        const questionObject = question.toJSON();
+        questionObjects.push({ ...questionObject , user : { ...questionObject.user } , password : null })
+    }
+    return questionObjects;
+}
+
+
+
+const getQuestionsByTopic = async (topic) => {
+    const questionObjects = [];
+    const topicObject = await Topic.findById(topic)
+                                        .populate({ path : 'questions' , populate : { path : 'user' } })
+                                        .populate({ path : 'questions' , populate : { path : 'topic'} })
+                                        .populate({ path : 'questions' , populate : { path : 'space'} });
+    const questions = topicObject.questions;
+    for( let question of questions ){
+        questionObjects.push({ ...question.toJSON() , user : {...question.toJSON().user , password : null } })
+    }
+    return questionObjects;
+}
+
+
+
+const getUserSpecificQuestions = async (user) => {
+    let questionObjects = [];
+    for( let space of user.spaces ){
+        const questions = await getQuestionsBySpace(space);
+        for( question of questions ){
+            questionObjects.push(question);
+        }
+    }
+    for( let topic of user.topics ){
+        const questions = await getQuestionsByTopic(topic);
+        for( question of questions ){
+            questionObjects.push(question);
+        }
+    }
+    return questionObjects;
+}
+
+
+
+
+
+
 
 module.exports.getQuestions = async (req,res) => {
     try{
@@ -94,46 +133,24 @@ module.exports.getQuestions = async (req,res) => {
         let questionObjects = [];
 
         if( filter){
-            questionObjects = await filterQuestions(filter);
-            return res.status(200).json({
-                message : "Questions Loaded",
-                questions : questionObjects ,
-                success : true
-            })
+            questionObjects = await getFilteredQuestions(filter);
         }else{
-            for( let space of user.spaces ){
-                const spaceObject = await Space.findById(space)
-                                                .populate({ path : 'questions' , populate : { path : 'user' } })
-                                                .populate({ path : 'questions' , populate : { path : 'topic'} })
-                                                .populate({ path : 'questions' , populate : { path : 'space'} });
-                const questions = spaceObject.questions;
-                for( let question of questions ){
-                    questionObjects.push({ ...question.toJSON() , user : {...question.toJSON().user , password : null } })
-                }
-            }
-            for( let topic of user.topics ){
-                const topicObject = await Topic.findById(topic)
-                                                .populate({ path : 'questions' , populate : { path : 'user' } })
-                                                .populate({ path : 'questions' , populate : { path : 'topic'} })
-                                                .populate({ path : 'questions' , populate : { path : 'space'} });
-                const questions = topicObject.questions;
-                for( let question of questions ){
-                    questionObjects.push({ ...question.toJSON() , user : {...question.toJSON().user , password : null } })
-                }
-            }
-            //console.log(questionObjects);
-            for( let question of questionObjects ){
-                question.description = JSON.stringify(
-                    JSON.parse(
-                        fs.readFileSync(path.join(__dirname , '..' ,'..' ,'data' , 'questions' , question.description))
-                ))
-            }
-            return res.status(200).json({
-                message : "Questions Loaded",
-                questions : questionObjects ,
-                success : true
-            })
+            questionObjects = await getUserSpecificQuestions(user);
         }
+
+        for( let question of questionObjects ){
+            question.description = JSON.stringify(
+                JSON.parse(
+                    fs.readFileSync(path.join(__dirname , '..' ,'..' ,'data' , 'questions' , question.description))
+            ))
+        }
+
+        return res.status(200).json({
+            message : "Questions Loaded",
+            questions : questionObjects ,
+            success : true
+        })
+        
     }catch(error){
         console.log(error);
         return res.status(500).json({

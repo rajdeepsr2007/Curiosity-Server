@@ -76,7 +76,8 @@ module.exports.login = async (req , res) => {
                     email : user.email ,
                     username : user.username,
                     success : true,
-                    firstLogin : firstLogin
+                    firstLogin : firstLogin,
+                    user : {...user.toJSON() , password : null}
                 })
             }
         }
