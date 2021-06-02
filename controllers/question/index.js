@@ -129,7 +129,7 @@ const getUserSpecificQuestions = async (user) => {
 module.exports.getQuestions = async (req,res) => {
     try{
         let { user } = req;
-        const { filter } = req.body;
+        const { filter , rangeStart } = req.body;
         let questionObjects = [];
 
         if( filter){
@@ -145,16 +145,29 @@ module.exports.getQuestions = async (req,res) => {
             ))
         }
 
+        const noOfResults = questionObjects.length;
+
+        if( rangeStart >= 0 ){
+            questionObjects = await spliceQuestions(questionObjects , rangeStart )  
+        }
+
         return res.status(200).json({
             message : "Questions Loaded",
             questions : questionObjects ,
-            success : true
+            success : true ,
+            results : noOfResults
         })
-        
+
     }catch(error){
         console.log(error);
         return res.status(500).json({
             message : "Something went wrong"
         })
     }
+}
+
+
+const spliceQuestions =  async (questions , rangeStart ) => {
+    const spliceLength = questions.length - rangeStart > 4 ? 5 : questions.length - rangeStart; 
+    return questions.splice(rangeStart , spliceLength);
 }
