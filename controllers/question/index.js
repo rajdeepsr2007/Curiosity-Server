@@ -121,7 +121,20 @@ const getUserSpecificQuestions = async (user) => {
 }
 
 
-
+const getSimilarQuestions = async (filter) => {
+    const questionId = filter.similar;
+    const question = await Question.findById(questionId);
+    const questionObjects = [];
+    const spaceQuestions = await getQuestionsBySpace(question.space);
+    const topicQuestions = await getQuestionsByTopic(question.topic);
+    for( const question of spaceQuestions ){
+        questionObjects.push(question);
+    }
+    for( const question of topicQuestions ){
+        questionObjects.push(question);
+    }
+    return questionObjects;
+}
 
 
 
@@ -132,7 +145,10 @@ module.exports.getQuestions = async (req,res) => {
         const { filter , rangeStart } = req.body;
         let questionObjects = [];
 
-        if( filter){
+        if( filter && filter.similar ){
+            questionObjects = await getSimilarQuestions(filter);
+        }
+        else if( filter){
             questionObjects = await getFilteredQuestions(filter);
         }else{
             questionObjects = await getUserSpecificQuestions(user);
