@@ -38,22 +38,30 @@ module.exports.getSpaces = async (req,res) => {
     try{
         let spaces = await Space.find();
         spaceObjects = [];
-        for( let space of spaces ){
-            const spaceObject = space.toJSON();
-            const topic =  await Topic.findById(space.topic);
-            let follow = false;
-            for( let space of req.user.spaces ){
-                
-                if( JSON.stringify(space) === JSON.stringify(spaceObject._id) ){
-                    follow  = true;
-                    break;
+
+        if( req.body.filter ){
+
+        }else{
+            for( let space of spaces ){
+                const spaceObject = space.toJSON();
+                const topic =  await Topic.findById(space.topic);
+                let follow = false;
+                for( let space of req.user.spaces ){
+                    
+                    if( JSON.stringify(space) === JSON.stringify(spaceObject._id) ){
+                        follow  = true;
+                        break;
+                    }
                 }
+                spaceObjects.push({...spaceObject , topic : {title : topic.title} , follow : follow});
             }
-            spaceObjects.push({...spaceObject , topic : {title : topic.title} , follow : follow});
         }
+
+        const resSpaces = await spliceSpaces(spaceObjects , req.body.startRange);
+        
         return res.status(200).json({
             message : "Spaces loaded",
-            spaces : spaceObjects
+            spaces : resSpaces
         })
     }catch(error){
         console.log(error);
@@ -117,4 +125,9 @@ module.exports.getSpacesByTopic = async (req,res) => {
             message : "Something went wrong"
         })
     }
+}
+
+const spliceSpaces = async (spaces , startRange) => {
+    const spliceLength = spaces.length - startRange >= 4 ? 5 : spaces.length - startRange + 1;
+    return spaces.splice(startRange , spliceLength); 
 }

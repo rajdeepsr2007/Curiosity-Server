@@ -9,5 +9,7 @@ router.post('/edit-topics' , passport.authenticate('jwt') , userController.editT
 router.get('/picture', passport.authenticate('jwt') , userController.getUserPicture );
 router.post('/edit-picture' , passport.authenticate('jwt') , userController.editPicture  );
 router.get('/get-user-topics-spaces' , passport.authenticate('jwt') , userController.getTopicsSpaces);
+router.post('/get-users',passport.authenticate('jwt'),userController.getUsers);
+router.post('/follow',passport.authenticate('jwt'),userController.followUser);
 
 module.exports = router;
