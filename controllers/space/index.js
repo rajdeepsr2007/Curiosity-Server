@@ -36,12 +36,27 @@ module.exports.addSpace = async (req,res) => {
 
 module.exports.getSpaces = async (req,res) => {
     try{
-        let spaces = await Space.find();
-        spaceObjects = [];
-
-        if( req.body.filter ){
-
+        let spaces;
+        const {filter} = req.body;
+        const spaceObjects = [];
+        if( filter ){
+            if( filter.follow){
+                for( const userId of filter.follow ){
+                    const userObject = await User.findById(userId).populate({ path : 'spaces' , populate : { path : 'topic' } });
+                    for( const space of userObject.spaces ){
+                        let spaceObject = space.toJSON();
+                        spaceObject.follow = false;
+                        for( const spaceId of req.user.spaces ){
+                            if( JSON.stringify(spaceId) === JSON.stringify(spaceObject._id) ){
+                                spaceObject.follow = true;
+                            }
+                        }
+                        spaceObjects.push(spaceObject);
+                    }
+                }
+            }
         }else{
+            spaces = await Space.find();
             for( let space of spaces ){
                 const spaceObject = space.toJSON();
                 const topic =  await Topic.findById(space.topic);
@@ -57,11 +72,13 @@ module.exports.getSpaces = async (req,res) => {
             }
         }
 
+        const results = spaceObjects.length;
         const resSpaces = await spliceSpaces(spaceObjects , req.body.startRange);
         
         return res.status(200).json({
             message : "Spaces loaded",
-            spaces : resSpaces
+            spaces : resSpaces,
+            results
         })
     }catch(error){
         console.log(error);

@@ -31,6 +31,11 @@ const questionSchema = new mongoose.Schema({
             type : mongoose.Schema.Types.ObjectId,
             ref : 'Answer'
         }
+    ],
+    images : [
+        {
+            type : String
+        }
     ]
 },{
     timestamps : true

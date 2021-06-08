@@ -124,7 +124,16 @@ const getFilteredUsers = async (filter) => {
                 userObjects.push(user);
             }
         }
+    }else if( filter.follow ){
+        for(  const user of filter.follow ){
+            let users = await User.findById(user).populate('following');
+            users = users.following;
+            for( const user of users ){
+                userObjects.push(user);
+            } 
+        }
     }
+   
     return userObjects;
 }
 
@@ -137,8 +146,9 @@ module.exports.getUsers = async (req,res) => {
         userObjects = await spliceUsers( userObjects , startRange );
         const users = [];
         for( let user of userObjects ){
-            const follow = await Follow.find({ user : user._id , follower : req.user._id });
-            users.push({...user.toJSON() , follow});
+            let follow = await Follow.findOne({ user : user._id , follower : req.user._id });
+            follow = follow ? true : false;
+            users.push({...user.toJSON() , follow });
         }
         return res.status(200).json({
             message : "Space Users",
