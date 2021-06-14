@@ -3,26 +3,37 @@ const Question = require('../../models/question/');
 const fs = require('fs');
 const path = require('path');
 const Vote = require('../../models/votes/votes');
+const uploadImages = require('../../models/answer/images-upload');
 
 module.exports.addAnswer = async (req,res) => {
     try{
-        const { questionId , description } = req.body;
-        const answer = await Answer.create({
-            user : req.user._id ,
-            question : questionId, 
-            upvotes : 0 ,
-            downvotes : 0 ,
-        })
+        uploadImages( req , res , async function(err){
 
-        const fileName = answer._id + '.json';
-        answer.description = fileName ;
-        await answer.save();
+            const { questionId , description } = req.body;
+            const answer = await Answer.create({
+                user : req.user._id ,
+                question : questionId, 
+                upvotes : 0 ,
+                downvotes : 0 ,
+            })
 
-        fs.writeFileSync(path.join(__dirname , '..' ,'..', 'data' , 'answers' , fileName) , description , {flags : 'w+'} );
+            const fileName = answer._id + '.json';
+            answer.description = fileName ;
+            await answer.save();
 
-        const question = await Question.findById(questionId);
-        question.answers.push(answer._id);
-        await question.save();
+            fs.writeFileSync(path.join(__dirname , '..' ,'..', 'data' , 'answers' , fileName) , description , {flags : 'w+'} );
+
+            const question = await Question.findById(questionId);
+            question.answers.push(answer._id);
+            await question.save();
+
+            if( req.files && req.files.length > 0 ){
+                answer.images = req.files.map( file => {
+                    return path.join('/uploads' , 'answers' , file.filename )
+                } )
+                await answer.save();
+            }    
+        } )
 
         return res.status(200).json({
             message : 'Answer Created',
@@ -30,6 +41,7 @@ module.exports.addAnswer = async (req,res) => {
         })
 
     }catch(error){
+        console.log(error);
         return res.status(500).json({
             message : "Something went wrong"
         })

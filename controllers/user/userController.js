@@ -183,7 +183,8 @@ module.exports.followUser = async (req,res) => {
             await fUser.save();
             return res.status(200).json({
                 message : "Unfollow",
-                success : true
+                success : true,
+                follow : false
             })
         }else{
             await Follow.create({
@@ -196,7 +197,8 @@ module.exports.followUser = async (req,res) => {
             await fUser.save();
             return res.status(200).json({
                 message : "Follow",
-                success : true
+                success : true,
+                followed : true
             })
         }
 
