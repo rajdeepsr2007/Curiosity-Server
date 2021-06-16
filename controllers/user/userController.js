@@ -133,6 +133,15 @@ const getFilteredUsers = async (filter) => {
                 userObjects.push(user);
             } 
         }
+    }else if( filter.followers ){
+        for( const user of filter.followers ){
+            let users = await User.findById(user).populate('followers');
+            users = users.followers;
+            for( const user of users ){
+                userObjects.push(user);
+            } 
+        }
+        console.log(userObjects);
     }
    
     return userObjects;

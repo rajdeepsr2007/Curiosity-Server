@@ -30,6 +30,10 @@ module.exports.addQuestion = async (req,res) => {
         await spacedb.questions.push(question._id);
         await spacedb.save();
 
+        const user = await User.findById(req.user._id);
+        await user.questions.push(question._id);
+        await user.save();
+
         return res.status(200).json({
             message : 'Question created',
             success : true
