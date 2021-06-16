@@ -11,5 +11,8 @@ router.post('/edit-picture' , passport.authenticate('jwt') , userController.edit
 router.get('/get-user-topics-spaces' , passport.authenticate('jwt') , userController.getTopicsSpaces);
 router.post('/get-users',passport.authenticate('jwt'),userController.getUsers);
 router.post('/follow',passport.authenticate('jwt'),userController.followUser);
+router.get('/get-user/:id', passport.authenticate('jwt') , userController.getUser)
+router.post('/edit-description' , passport.authenticate('jwt') , userController.editDescription  );
+
 
 module.exports = router;

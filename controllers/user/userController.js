@@ -5,6 +5,7 @@ const uploadPicture = require('../../models/user/picture-upload');
 const path = require('path');
 const Space = require('../../models/space');
 const Follow = require('../../models/follow/follow');
+const fs = require('fs');
 
 module.exports.editTopics = async (req,res) => {
     try{
@@ -208,4 +209,61 @@ module.exports.followUser = async (req,res) => {
             message : "Something went wrong"
         })
     }
+}
+
+module.exports.getUser = async (req,res) => {
+    try{
+        const userId = req.params.id;
+        const user = await User.findById(userId);
+        if( user ){
+            let follow = await Follow.findOne({ user : userId , follower : req.user._id })
+            follow = follow ? true : false;
+            const description = await getUserDescription(user);
+            return res.status(200).json({
+                message : 'User' ,
+                user : {...user.toJSON() , password : null , follow , description } ,
+                success : true
+            })
+        }else{
+            return res.status(200).json({
+                message : 'User not found' ,
+                success : false
+            })
+        }
+    }catch(error){
+        console.log(error)
+        return res.status(200).json({
+            message : 'Something went wrong'
+        })
+    }
+}
+
+module.exports.editDescription = async (req,res) => {
+    try{
+        const user = await User.findById(req.user._id);
+        const fileName = user._id + '.json';
+        fs.writeFileSync(path.join(__dirname , '..' , '..' , 'data' , 'user' , fileName) , req.body.description);
+        user.description = fileName;
+        await user.save();
+        return res.status(200).json({
+            message : 'Changes saved',
+            success  : true
+        })
+    }catch(error){
+        return res.status(200).json({
+            message : 'Something went wrong'
+        })
+    }
+}
+
+const getUserDescription = async (user) => {
+    const description = JSON.stringify(
+        JSON.parse(
+            fs.readFileSync(
+                path.join(__dirname , '..' , '..' , 'data', 'user' , user.description)
+            )
+        )
+    )
+    
+    return description;
 }
