@@ -4,9 +4,11 @@ const fs = require('fs');
 const path = require('path');
 const Vote = require('../../models/votes/votes');
 const uploadImages = require('../../models/answer/images-upload');
+const User = require('../../models/user/index');
 
 module.exports.addAnswer = async (req,res) => {
     try{
+        const user = await User.findById(req.user._id);
         uploadImages( req , res , async function(err){
 
             const { questionId , description } = req.body;
@@ -26,6 +28,9 @@ module.exports.addAnswer = async (req,res) => {
             const question = await Question.findById(questionId);
             question.answers.push(answer._id);
             await question.save();
+
+            user.answers.push(answer._id);
+            await user.save();
 
             if( req.files && req.files.length > 0 ){
                 answer.images = req.files.map( file => {

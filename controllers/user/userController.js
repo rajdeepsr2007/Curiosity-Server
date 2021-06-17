@@ -141,7 +141,6 @@ const getFilteredUsers = async (filter) => {
                 userObjects.push(user);
             } 
         }
-        console.log(userObjects);
     }
    
     return userObjects;
