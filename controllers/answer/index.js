@@ -175,6 +175,10 @@ module.exports.deleteAnswer = async (answerId) => {
             await user.answers.pull(answer._id);
             await user.save();
         }
+        const question = await Question.findById(answer.question);
+        await question.answers.pull(answer._id);
+        await question.save();
+
         await fs.unlinkSync(
             path.join(
                 __dirname , '..' , '..' , 'data' , 'answers' , answer.description
@@ -183,4 +187,20 @@ module.exports.deleteAnswer = async (answerId) => {
         await answer.remove();
     }
     
+}
+
+module.exports.deleteAnswerRequest = async (req,res) => {
+    try{
+        const answerId = req.params.aid;
+        await this.deleteAnswer(answerId);
+        return res.status(200).json({
+            message : 'Answer Deleted',
+            success : true
+        })
+    }catch(error){
+        console.log(error);
+        return res.status(500).json({
+            message : 'Something went wrong'
+        })
+    }
 }
