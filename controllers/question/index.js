@@ -5,6 +5,7 @@ const Topic = require('../../models/topic/');
 const Space = require('../../models/space/');
 const User = require('../../models/user');
 const Answer = require('../../models/answer/index');
+const deleteAnswer = require('../answer/index').deleteAnswer;
 
 module.exports.addQuestion = async (req,res) => {
     try{
@@ -236,4 +237,48 @@ module.exports.getQuestions = async (req,res) => {
 const spliceQuestions =  async (questions , rangeStart ) => {
     const spliceLength = questions.length - rangeStart > 4 ? 5 : questions.length - rangeStart; 
     return questions.splice(rangeStart , spliceLength);
+}
+
+module.exports.deleteQuestion = async (req,res) => {
+    try{
+        const question = await Question.findById(req.params.id);
+        if(question){
+            for( const answer of question.answers ){
+                await deleteAnswer(answer);
+            }
+            await fs.unlinkSync(
+                path.join(
+                    __dirname , '..' , '..' , 'data' , 'questions' , question.description
+                )
+            )
+            const user = await User.findById(question.user);
+            if( user ){
+                await user.questions.pull(question._id);
+                await user.save();
+            } 
+            const space = await Space.findById(question.space);
+            await space.questions.pull(question._id);
+            const topic = await Topic.findById(question.topic);
+            await topic.questions.pull(question._id);
+            await space.save();
+            await topic.save();
+
+            await question.remove();
+            return res.status(200).json({
+                message : 'Question Deleted',
+                success : true
+            })
+        }else{
+            return res.status(200).json({
+                message : 'Question not found',
+                success : false
+            })
+        }
+        
+    }catch(error){
+        console.log(error);
+        return res.status(500).json({
+            message : "Something went wrong"
+        })
+    }
 }

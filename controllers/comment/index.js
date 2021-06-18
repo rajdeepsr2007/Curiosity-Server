@@ -70,3 +70,15 @@ module.exports.getComments = async (req,res) => {
         })
     }
 }
+
+module.exports.deleteComment = async (commentId) => {
+    const comment = await Comment.findById(commentId);
+    if( comment ){
+        await fs.unlinkSync(
+            path.join(
+                __dirname , '..' , '..' , 'data' , 'comments' , comment.description
+            )
+        )
+        await comment.remove();
+    }  
+}

@@ -1,5 +1,6 @@
 const Answer = require('../../models/answer/');
 const Question = require('../../models/question/');
+const deleteComment = require('../comment/index').deleteComment;
 const fs = require('fs');
 const path = require('path');
 const Vote = require('../../models/votes/votes');
@@ -162,3 +163,24 @@ module.exports.voteAnswer = async (req,res) => {
         }) 
     }
 } 
+
+module.exports.deleteAnswer = async (answerId) => {
+    const answer = await Answer.findById(answerId);
+    if( answer ){
+        for( const comment of answer.comments ){
+            await deleteComment(comment);
+        }
+        const user = await User.findById(answer.user);
+        if( user ){
+            await user.answers.pull(answer._id);
+            await user.save();
+        }
+        await fs.unlinkSync(
+            path.join(
+                __dirname , '..' , '..' , 'data' , 'answers' , answer.description
+            )
+        )
+        await answer.remove();
+    }
+    
+}

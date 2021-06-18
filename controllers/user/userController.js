@@ -265,13 +265,20 @@ module.exports.editDescription = async (req,res) => {
 }
 
 const getUserDescription = async (user) => {
-    const description = JSON.stringify(
-        JSON.parse(
-            fs.readFileSync(
-                path.join(__dirname , '..' , '..' , 'data', 'user' , user.description)
+
+    let description;
+    if( user.description ){
+        description = JSON.stringify(
+            JSON.parse(
+                fs.readFileSync(
+                    path.join(__dirname , '..' , '..' , 'data', 'user' , user.description)
+                )
             )
         )
-    )
+    }else{
+        description = '{"blocks":[{"key":"98v0f","text":"No description Added","type":"unstyled","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{}}],"entityMap":{}}'
+    }
+    
     
     return description;
 }
