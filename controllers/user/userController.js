@@ -160,7 +160,7 @@ module.exports.getUsers = async (req,res) => {
             users.push({...user.toJSON() , follow });
         }
         return res.status(200).json({
-            message : "Space Users",
+            message : "Users",
             users : users,
             results : results
         })
@@ -183,13 +183,13 @@ module.exports.followUser = async (req,res) => {
         const {userId} = req.body;
         user = await User.findById(user._id);
         const fUser = await User.findById(userId);
-        const follow = await Follow.findOne({ user : user._id , follower : userId });
+        const follow = await Follow.findOne({ user : userId , follower : user._id });
         if( follow ){
             follow.remove();
-            user.following.pull(userId);
-            await user.save();
             fUser.followers.pull(user._id);
             await fUser.save();
+            user.following.pull(userId);
+            await user.save();
             return res.status(200).json({
                 message : "Unfollow",
                 success : true,
