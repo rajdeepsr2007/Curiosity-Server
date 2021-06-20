@@ -2,10 +2,10 @@ const express = require('express');
 const app = express();
 const port = 8000;
 const cors = require('cors');
+const http=require('http');
 
 const db=require('./config/mongoose');
 const passport = require('passport');
-const { use } = require('./routes');
 
 app.use(cors());
 app.use(express.json());
@@ -14,6 +14,10 @@ app.use(passport.initialize());
 app.use(express.static('./assets/'))
 app.use('/uploads' , express.static('./uploads'))
 app.use('/',require('./routes'));
+
+const PollServer = http.createServer(app);
+const PollSocket = require('./config/pollSocket').createPollServer(PollServer)
+PollServer.listen(5000);
 
 app.listen( port , ( err ) => {
     if( err ){

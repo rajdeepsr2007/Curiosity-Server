@@ -7,5 +7,6 @@ router.use('/spaces',require('./spaces'));
 router.use('/questions',require('./questions'));
 router.use('/answers',require('./answers'));
 router.use('/comments',require('./comments'));
+router.use('/polls',require('./polls'));
 
 module.exports = router;
