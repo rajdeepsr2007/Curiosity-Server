@@ -4,6 +4,6 @@ const pollController = require('../../../controllers/poll/index');
 const passport = require('passport');
 
 router.post('/add', passport.authenticate('jwt') , pollController.addPoll);
-router.get('/get-poll/:id',pollController.getPoll)
+router.get('/get-poll/:id',passport.authenticate('jwt'),pollController.getPoll)
 
 module.exports = router ;

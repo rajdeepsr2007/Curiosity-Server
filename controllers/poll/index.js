@@ -1,5 +1,6 @@
 const Poll = require('../../models/poll/poll');
 const Option = require('../../models/poll/option/option');
+const Vote = require('../../models/poll/vote/vote');
 
 module.exports.addPoll = async (req,res) => {
     try{
@@ -35,10 +36,13 @@ module.exports.getPoll = async (req,res) => {
         const pollId = req.params.id;
         const poll = await Poll.findOne({ pid : pollId }).populate('user').populate('options');
         if( poll ){
+            const vote = await Vote.findOne({ user : req.user._id , poll : poll._id });
+            let selectedOption = vote ? vote.option : null;
             return res.status(200).json({
                 message : 'Poll loaded',
                 poll : poll,
-                success : true
+                success : true,
+                selectedOption
             })
         }else{
             return res.status(200).json({
