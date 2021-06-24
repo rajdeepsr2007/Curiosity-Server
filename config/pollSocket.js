@@ -7,7 +7,7 @@ const Vote = require('../models/poll/vote/vote');
 module.exports.createPollServer = (server) => {
     const io=socketIO(server , {
         cors: {
-          origin: "http://localhost:3000",
+          origin: "https://curiosity-8a39c.web.app/",
           credentials: true
         }
     });

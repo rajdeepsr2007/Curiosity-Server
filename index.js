@@ -1,6 +1,6 @@
 const express = require('express');
 const app = express();
-const port = 8000;
+const port = process.env.PORT || 8000;
 const cors = require('cors');
 const http=require('http');
 
@@ -17,7 +17,7 @@ app.use('/',require('./routes'));
 
 const PollServer = http.createServer(app);
 const PollSocket = require('./config/pollSocket').createPollServer(PollServer)
-PollServer.listen(5000);
+PollServer.listen(process.env.CURIOSITY_POLL_PORT || 5000);
 
 app.listen( port , ( err ) => {
     if( err ){
