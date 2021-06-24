@@ -58,6 +58,7 @@ module.exports.getAnswers = async (req,res) => {
     try{
         const {questionId} = req.body;
         const question = await Question.findById(questionId)
+                        .sort({ createdAt : 1 })
                         .populate({ path : 'answers' , populate : { path : 'user' } })
         const answers = question.answers;
         for( const answer of answers ){

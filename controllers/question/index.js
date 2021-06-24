@@ -205,6 +205,14 @@ module.exports.getQuestions = async (req,res) => {
             questionObjects = await getUserSpecificQuestions(user);
         }
 
+        await questionObjects.sort((a,b) => {
+            if( new Date(a.createdAt) < new Date(b.createdAt) ){
+                return 1;
+            }else{
+                return -1;
+            }
+        })
+
         for( let question of questionObjects ){
             question.description = JSON.stringify(
                 JSON.parse(
