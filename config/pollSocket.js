@@ -7,7 +7,10 @@ const Vote = require('../models/poll/vote/vote');
 module.exports.createPollServer = (server) => {
     const io=socketIO(server , {
         cors: {
-          origin: "http://3.141.21.117:3000",
+          origin: process.env.CURIOSITY_IP ? 
+                 "http://" + process.env.CURIOSITY_IP + ":"+process.env.CURIOSITY_PORT
+                 : "http://localhost:3000"
+                 ,
           credentials: true
         }
     });
